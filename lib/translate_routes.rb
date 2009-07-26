@@ -12,6 +12,9 @@ module ActionController
 
       mattr_accessor :locale_param_key
       @@locale_param_key = :locale  # set to :locale for params[:locale]
+      
+      mattr_accessor :ignore_routes # regex for/or route symbols that should not be translated
+      @@ignore_routes = []
 
       mattr_accessor :original_routes, :original_named_routes, :original_names, :dictionaries
 
@@ -69,6 +72,21 @@ module ActionController
         def self.locale_suffix_code
           'locale.to_s.underscore'
         end
+        
+        def self.ignore_route?(name)
+          return false if name.nil?
+          ignore_routes.each do |filter|
+            case filter
+              when Regexp:
+                return true if name.to_s =~ filter
+              when String:
+                return true if name.to_s == filter
+              when Symbol:
+                return true if name == filter
+            end
+          end          
+          false
+        end        
 
         class_eval <<-FOO
            def self.locale_suffix(locale)
@@ -90,21 +108,27 @@ module ActionController
           @@original_routes.each do |old_route|
 
             old_name = @@original_named_routes.index(old_route)
-            # process and add the translated ones
-            trans_routes, trans_named_routes = translate_route(old_route, old_name)
-
+            unless ignore_route?(old_name) 
+              # process and add the translated ones
+              trans_routes, trans_named_routes = translate_route(old_route, old_name)
+            else
+              # just add the original ones, don't translate
+              trans_routes, trans_named_routes = [old_route], {old_name => old_route}
+            end   
+    
             if old_name
               new_named_routes.merge! trans_named_routes
             end
 
             new_routes.concat(trans_routes)
-          
+                  
           end
         
           Routes.routes = new_routes
           new_named_routes.each { |name, r| Routes.named_routes.add name, r }
-          
-          @@original_names.each{ |old_name| add_untranslated_helpers_to_controllers_and_views(old_name) }
+
+          # add untranslated helpers for all but ignored routes          
+          @@original_names.each{ |old_name| add_untranslated_helpers_to_controllers_and_views(old_name) unless ignore_route?(old_name) }
         end
 
         # The untranslated helper (root_path instead root_en_path) redirects according to the current locale
