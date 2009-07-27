@@ -1,3 +1,9 @@
+-- 0.98.2
+  * Added by ysf: Array Translator.ignore_routes which can be filled with regexes, symbols or strings of named routes to exclude translations for these.
+  
+-- 0.98.1
+  * Fixed by ysf: RAILS_ROOT/locales is added to I18n.load_path instead of overwriting it
+  
 -- 0.98
   Accepted patch from hoelmer: Updated rake task to use I18n yaml format.
 -- 0.97

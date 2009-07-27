@@ -6,10 +6,17 @@ require 'test_help'
 # Include default lang on your test requests (test requests doesn't support default_url_options):
 ActionController::TestProcess.class_eval do
   unless method_defined?(:process_without_default_language)
+<<<<<<< HEAD:lib/translate_routes_test_helper.rb
     def process_with_default_language(action, parameters = nil, *args)
       lang_pair = {:locale, I18n.default_locale.to_s}
       parameters = lang_pair.merge(parameters) rescue lang_pair
       process_without_default_language(action, parameters, *args)
+=======
+    def process_with_default_language(action, parameters = nil, session = nil, flash = nil, http_method = 'GET')
+      lang_pair = {:locale, I18n.default_locale.to_s}
+      parameters = lang_pair.merge(parameters) rescue lang_pair
+      process_without_default_language(action, parameters, session, flash, http_method)
+>>>>>>> 13507ca40e4033e6e325527d910f3dfd66248403:lib/translate_routes_test_helper.rb
     end
 
     alias :process_without_default_language :process

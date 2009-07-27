@@ -17,7 +17,7 @@ module I18n
   end
 end
 
-# load translation files from RAILS_ROOT/locales
+# add translation files from RAILS_ROOT/locales
 [:rb, :yml].each do |format|
-  I18n.load_path = Dir[File.join(RAILS_ROOT, 'locales', '*.{rb,yml}') ]
+  I18n.load_path += Dir[File.join(RAILS_ROOT, 'locales', '*.{rb,yml}') ]
 end
