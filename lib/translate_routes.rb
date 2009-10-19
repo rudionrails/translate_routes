@@ -76,6 +76,11 @@ module ActionController
           'locale.to_s.underscore'
         end
         
+        def self.ignore?( route )
+          original_name = @@original_named_routes.index( route )
+          ignore_route?( original_name ) || ignore_segments?( route.segments )
+        end
+
         def self.ignore_route?(name)
           return false if name.nil?
           ignore_routes.each do |filter|
@@ -126,7 +131,7 @@ module ActionController
           @@original_routes.each do |old_route|
 
             old_name = @@original_named_routes.index(old_route)
-            unless ignore_route?(old_name) || ignore_segments?( old_route.segments )
+            unless ignore?( old_route )
               # process and add the translated ones
               trans_routes, trans_named_routes = translate_route(old_route, old_name)
             else
@@ -146,7 +151,11 @@ module ActionController
           new_named_routes.each { |name, r| Routes.named_routes.add name, r }
 
           # add untranslated helpers for all but ignored routes          
-          @@original_names.each{ |old_name| add_untranslated_helpers_to_controllers_and_views(old_name) unless ignore_route?(old_name) }
+          @@original_routes.each do |route|
+            next if ignore?( route )
+            original_name = @@original_named_routes.index( route )
+            add_untranslated_helpers_to_controllers_and_views(original_name)
+          end
         end
 
         # The untranslated helper (root_path instead root_en_path) redirects according to the current locale
