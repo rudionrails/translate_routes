@@ -67,6 +67,27 @@ Of course, your functional and integration testing involves some requests.
 The plugin includes some code to add a default locale parameter so they can remain untouched.
 Append it to your `test_helper` and it will be applied.
 
+
+### Ignoring Routes ###
+
+If you want to exclude specific route names from the translation, you can specify this in your routes.rb.
+Simply add the following **before** ActionController::Routing::Translator.translate_from_file('config','i18n-routes.yml'):
+
+    ActionController::Routing::Translator.ignore_routes = [ /^admin_/ ]
+
+This will not translate any named route starting with *admin_*. 
+
+Since the above only works on the actual named_route, you can alternatively specify route segments (URL parts) to remain untranslated.
+Again, put the following above the :translate_from_file statement in your routes.rb:
+
+  ActionController::Routing::Translator.ignore_route_segments = [ /^\/admin/ ]
+
+Essentially, this has the same effect as :ignore_routes, but with the difference that any URL starting with /admin
+will remain untranslated. :ignore_route_segments does not depend on previously specified named_routes 
+and, therefore, also works for any anonymous route, such as any POST to a create action or simply a route
+defined with map.connect in your routes.rb.
+  
+
 Documentation
 -------------
 You can find additional information in [the translate_routes' wiki](http://wiki.github.com/raul/translate_routes).
