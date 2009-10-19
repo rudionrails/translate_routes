@@ -151,11 +151,7 @@ module ActionController
           new_named_routes.each { |name, r| Routes.named_routes.add name, r }
 
           # add untranslated helpers for all but ignored routes          
-          @@original_routes.each do |route|
-            next if ignore?( route )
-            original_name = @@original_named_routes.index( route )
-            add_untranslated_helpers_to_controllers_and_views(original_name)
-          end
+          @@original_named_routes.each { |old_name, old_route| add_untranslated_helpers_to_controllers_and_views( old_name ) unless ignore?( old_route ) }
         end
 
         # The untranslated helper (root_path instead root_en_path) redirects according to the current locale
