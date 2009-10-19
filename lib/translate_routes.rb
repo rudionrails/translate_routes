@@ -16,6 +16,9 @@ module ActionController
       mattr_accessor :ignore_routes # regex for/or route symbols that should not be translated
       @@ignore_routes = []
 
+      mattr_accessor :ignore_route_segments # regex for urls that should not be translated
+      @@ignore_route_segments = []
+
       mattr_accessor :original_routes, :original_named_routes, :original_names, :dictionaries
 
       def self.translate
@@ -86,7 +89,22 @@ module ActionController
             end
           end          
           false
-        end        
+        end
+
+        def self.ignore_segments?( segments )
+          return false if segments.nil? || segments.empty?
+          
+          segment = segments.join(&:value)
+          ignore_route_segments.each do |filter|
+            case filter
+              when Regexp then return true if segment =~ filter
+              when String then return true if segment == filter
+              when Symbol then return true if segment.to_sym == filter
+            end
+          end
+          false
+        end
+
 
         class_eval <<-FOO
            def self.locale_suffix(locale)
@@ -108,7 +126,7 @@ module ActionController
           @@original_routes.each do |old_route|
 
             old_name = @@original_named_routes.index(old_route)
-            unless ignore_route?(old_name) 
+            unless ignore_route?(old_name) || ignore_segments?( old_route.segments )
               # process and add the translated ones
               trans_routes, trans_named_routes = translate_route(old_route, old_name)
             else
