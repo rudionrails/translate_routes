@@ -80,7 +80,7 @@ This will not translate any named route starting with *admin_*.
 Since the above only works on the actual named_route, you can alternatively specify route segments (URL parts) to remain untranslated.
 Again, put the following above the :translate_from_file statement in your routes.rb:
 
-  ActionController::Routing::Translator.ignore_route_segments = [ /^\/admin/ ]
+    ActionController::Routing::Translator.ignore_route_segments = [ /^\/admin/ ]
 
 Essentially, this has the same effect as :ignore_routes, but with the difference that any URL starting with /admin
 will remain untranslated. :ignore_route_segments does not depend on previously specified named_routes 
